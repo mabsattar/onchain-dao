@@ -55,4 +55,36 @@ contract CryptoDevsDAO is Ownable {
         require(cryptoDevsNFT.balanceOf(msg.sender) >0, "NOT_A_DAO_MEMBER");
         _;
     }
+
+    enum Vote {
+        YAY, // 0
+        NAY // 1
+    }
+
+    function voteOnProposal(uint256 proposalIndex, Vote vote)
+        external 
+        nftHolderOnly 
+        activeProposalOnly(proposalIndex) 
+    {
+        Proposal storage proposal = proposals[proposalIndex];
+
+        uint 256 voterNFTBalance = cryptoDevsNFT.balanceOf(msg.sender);
+        uint256 numVotes = 0;
+
+        for (uint256 i= 0; i < voterNFTBalance, i++) {
+            uint256 tokenId = cryptoDevsNFT.tokenOfOwnerByIndex(msg.sender, 1);
+            if (proposal.voters[tokenOd] == false) {
+                numVotes++;
+                proposal.voters[tokenId] = true;
+            }
+        }
+        require(numVotes > 0, "ALREADY_VOTED");
+
+        if (vote == Vote.YAY) {
+            proposal.yayVotes += numVotes;
+        } else {
+            proposal.nayVotes += numVotes;
+        }
+        
+    }
 }
