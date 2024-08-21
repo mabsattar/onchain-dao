@@ -44,15 +44,16 @@ contract CryptoDevsDAO is Ownable {
     IFakeNFTMarketPlace nftMarketplace;
     ICryptoDevsNFT cryptoDevsNFT;
 
-    Constructor(address _nftMarketplace, address _cryptoDevsNFT)
-    Ownable(msg.sender) payable {
-        nftMarketplace = IFakeMarketplace(_nftMarketplace);
-        cryptoDevsNFT =  ICryptoDevsNFT(_cryptoDevsNFT);
-
+    constructor(
+        address _nftMarketplace,
+        address _cryptoDevsNFT
+    ) payable Ownable(msg.sender) {
+        nftMarketplace = IFakeNFTMarketplace(_nftMarketplace);
+        cryptoDevsNFT = ICryptoDevsNFT(_cryptoDevsNFT);
     }
 
     modifier nftHolderOnly() {
-        require(cryptoDevsNFT.balanceOf(msg.sender) >0, "NOT_A_DAO_MEMBER");
+        require(cryptoDevsNFT.balanceOf(msg.sender) > 0, "NOT_A_DAO_MEMBER");
         _;
     }
 
@@ -61,19 +62,18 @@ contract CryptoDevsDAO is Ownable {
         NAY // 1
     }
 
-    function voteOnProposal(uint256 proposalIndex, Vote vote)
-        external 
-        nftHolderOnly 
-        activeProposalOnly(proposalIndex) 
-    {
+    function voteOnProposal(
+        uint256 proposalIndex,
+        Vote vote
+    ) external nftHolderOnly activeProposalOnly(proposalIndex) {
         Proposal storage proposal = proposals[proposalIndex];
 
-        uint 256 voterNFTBalance = cryptoDevsNFT.balanceOf(msg.sender);
+        uint256 voterNFTBalance = cryptoDevsNFT.balanceOf(msg.sender);
         uint256 numVotes = 0;
 
-        for (uint256 i= 0; i < voterNFTBalance, i++) {
-            uint256 tokenId = cryptoDevsNFT.tokenOfOwnerByIndex(msg.sender, 1);
-            if (proposal.voters[tokenOd] == false) {
+        for (uint256 i = 0; i < voterNFTBalance; i++) {
+            uint256 tokenId = cryptoDevsNFT.tokenOfOwnerByIndex(msg.sender, i);
+            if (proposal.voters[tokenId] == false) {
                 numVotes++;
                 proposal.voters[tokenId] = true;
             }
@@ -85,7 +85,6 @@ contract CryptoDevsDAO is Ownable {
         } else {
             proposal.nayVotes += numVotes;
         }
-        
     }
 
     modifier inactiveProposalOnly(uint256 proposalIndex) {
@@ -97,16 +96,14 @@ contract CryptoDevsDAO is Ownable {
             proposals[proposalIndex].executed == false,
             "PROPOSAL_ALREADY_EXECUTED"
         );
-        -;
+        _;
     }
 
     /// @dev executeProposal allows any CryptoDevsNFT holder to execute a proposal after it's deadline has been exceeded
     /// @param proposalIndex - the index of the proposal to execute in the proposals array
-    function executeProposal(uint256 proposalIndex)
-        external
-        nftHolderOnly
-        inactiveProposalOnly(proposalIndex)
-    {
+    function executeProposal(
+        uint256 proposalIndex
+    ) external nftHolderOnly inactiveProposalOnly(proposalIndex) {
         Proposal storage proposal = proposals[proposalIndex];
 
         // If the proposal has more YAY votes than NAY votes
@@ -122,14 +119,13 @@ contract CryptoDevsDAO is Ownable {
     function withdrawEther() external onlyOwner {
         uint256 amount = address(this).balance;
         require(amount > 0, "Nothing to withdraw, contract balance empty");
-        (bool sent, ) = payable(owner().call{value: amount} {""});
+        (bool sent, ) = payable(owner().call{value: amount}(""));
         require(sent, "FAILED_TO_WITHDRAW_ETHER");
     }
-    
+
     // The following two functions allow the contract to accept ETH deposits
     // directly from a wallet without calling a function
     receive() external payable {}
 
     fallback() external payable {}
-    
 }
