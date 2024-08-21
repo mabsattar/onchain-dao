@@ -118,5 +118,18 @@ contract CryptoDevsDAO is Ownable {
         }
         proposal.executed = true;
     }
+
+    function withdrawEther() external onlyOwner {
+        uint256 amount = address(this).balance;
+        require(amount > 0, "Nothing to withdraw, contract balance empty");
+        (bool sent, ) = payable(owner().call{value: amount} {""});
+        require(sent, "FAILED_TO_WITHDRAW_ETHER");
+    }
+    
+    // The following two functions allow the contract to accept ETH deposits
+    // directly from a wallet without calling a function
+    receive() external payable {}
+
+    fallback() external payable {}
     
 }
