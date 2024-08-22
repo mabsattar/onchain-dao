@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-interface IFakeNFTMarketPlace {
+interface IFakeNFTMarketplace {
     function getPrice() external view returns (uint256);
 
     function available(uint256 _tokenId) external view returns (bool);
@@ -41,7 +41,7 @@ contract CryptoDevsDAO is Ownable {
 
     uint256 public numProposals;
 
-    IFakeNFTMarketPlace nftMarketplace;
+    IFakeNFTMarketplace nftMarketplace;
     ICryptoDevsNFT cryptoDevsNFT;
 
     constructor(
@@ -87,6 +87,14 @@ contract CryptoDevsDAO is Ownable {
         }
     }
 
+    modifier activeProposalOnly(uint256 proposalIndex) {
+        require(
+            proposals[proposalIndex].deadline > block.timestamp,
+            "PROPOSAL_HAS_EXPIRED"
+        );
+        _;
+    }
+
     modifier inactiveProposalOnly(uint256 proposalIndex) {
         require(
             proposals[proposalIndex].deadline <= block.timestamp,
@@ -119,7 +127,7 @@ contract CryptoDevsDAO is Ownable {
     function withdrawEther() external onlyOwner {
         uint256 amount = address(this).balance;
         require(amount > 0, "Nothing to withdraw, contract balance empty");
-        (bool sent, ) = payable(owner().call{value: amount}(""));
+        (bool sent, ) = payable(owner()).call{value: amount}("");
         require(sent, "FAILED_TO_WITHDRAW_ETHER");
     }
 
