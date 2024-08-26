@@ -10,8 +10,9 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { formatEther } from "viem/utils";
-import { useAccount, useBalance, useContractRead } from "wagmi";
-import { readContract, waitForTransaction, writeContract } from "wagmi/actions";
+import { useAccount, useBalance } from "wagmi";
+import { useReadContract } from "wagmi";
+import { readContract, writeContract } from "wagmi/actions";
 import styles from "./page.module.css";
 import { Inter } from "next/font/google";
 
@@ -38,7 +39,7 @@ export default function Home() {
   const [selectedTab, setSelectedTab] = useState("");
 
   // Fetch the owner of the DAO
-  const daoOwner = useContractRead({
+  const daoOwner = useReadContract({
     abi: CryptoDevsDAOABI,
     address: CryptoDevsDAOAddress,
     functionName: "owner",
@@ -50,14 +51,14 @@ export default function Home() {
   });
 
   // Fetch the number of proposals in the DAO
-  const numOfProposalsInDAO = useContractRead({
+  const numOfProposalsInDAO = useReadContract({
     abi: CryptoDevsDAOABI,
     address: CryptoDevsDAOAddress,
     functionName: "numProposals",
   });
 
   // Fetch the CryptoDevs NFT balance of the user
-  const nftBalanceOfUser = useContractRead({
+  const nftBalanceOfUser = useReadContract({
     abi: CryptoDevsNFTABI,
     address: CryptoDevsNFTAddress,
     functionName: "balanceOf",
